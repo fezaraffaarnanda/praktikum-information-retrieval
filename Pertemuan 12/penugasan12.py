@@ -1,16 +1,16 @@
-"""This script serves as an example on how to use Python 
-   & Playwright to scrape/extract data from Google Maps"""
+"""Script ini digunakan untuk mengekstrak data review dari suatu tempat di Google Maps"""
 
 from playwright.sync_api import sync_playwright
 from dataclasses import dataclass, asdict, field
 import pandas as pd
 import argparse
 import time
+import sys
 
 
 @dataclass
 class Review:
-    """holds reviews data"""
+    """holds maps reviews data"""
     id_review: str = None
     name: str = None
     review_text: str = None
@@ -55,61 +55,15 @@ def main():
 
         page.wait_for_timeout(10000)
         page.locator('button:has-text("Ulasan lainnya")').click();
-
-        # total = 30
-        # previously_counted = 0
-        # while True:
-        #     page.mouse.wheel(0, 10)
-        #     page.wait_for_timeout(10000)
-
-        #     if (page.locator('//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[9]').count()>= total):
-        #         listings = page.locator('//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[9]').all()[:total]
-        #         listings = [listing.locator("xpath=..") for listing in listings]
-        #         print(f"Total Scraped: {len(listings)}")
-        #         break
-        #     else:
-        #         # logic to break from loop to not run infinitely
-        #         # in case arrived at all available listings
-        #         if (page.locator('//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[9]').count()== previously_counted):
-        #             listings = page.locator('//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[9]').all()
-        #             print(f"Arrived at all available\nTotal Scraped: {len(listings)}")
-        #             break
-        #         else:
-        #             previously_counted = page.locator('//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[9]').count()
-        #             print(f"Currently Scraped: ",page.locator('//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[9]').count(),)
-
-        # _prev_height = -1
-        # _max_scrolls = 100
-        # _scroll_count = 0
-        # while _scroll_count < _max_scrolls:
-        #     # Execute JavaScript to scroll to the bottom of the page
-        #     page.evaluate("window.scrollTo(0, 1000)")
-        #     # Wait for new content to load (change this value as needed)
-        #     time.sleep(0.5)
-        #     # Check whether the scroll height changed - means more pages are there
-        #     new_height = page.evaluate("document.body.scrollHeight")
-        #     if new_height == _prev_height:
-        #         break
-        #     _prev_height = new_height
-        #     _scroll_count += 1
-       
-
+        
         review_list = ReviewList()
 
-        # page.wait_for_timeout(1000)
+        print("============ Scraping ===========")
 
-        
         for i in range(1,total):
             review = Review()
 
             page.wait_for_timeout(1575)
-
-            # page.hover('//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[9]')
-
-            scroll_element = page.locator('//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]')
-            
-            # Scroll down to the bottom of the element
-            scroll_element.scroll_into_view_if_needed()
             
             review_element = page.query_selector('//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[9]/div['+str(3*i+-2)+']/div/div/div[2]/div[2]/div[1]/button')
             review_id = review_element.get_attribute('data-review-id')
@@ -128,12 +82,16 @@ def main():
             review.name = reviewer_name
             review.review_text = review_text
 
-            print(review)
+            # print(review)
             review_list.review_list.append(review)
 
             page.mouse.wheel(0, 7000)
             page.wait_for_timeout(3000)
-
+            # Print empat huruf terakhir review id dan total review yang sudah di scrape
+            print(f"Review ID: ...{review_id[-4:]} | Currently Scraped: {i}", end='\r')
+            sys.stdout.flush()
+            
+        print("\n======== Menyimpan ke Excel ========")
         review_list.save_to_excel("jakarta_aquarium_review")
 
         browser.close()
@@ -143,9 +101,9 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--total", type=int)
     args = parser.parse_args()
 
-    # total number of products to scrape. Default is 10
+    # Total review yang akan di scrape, defaulnya 10
     if args.total:
-        total = args.total
+        total = args.total+1
     else:
         total = 10
 

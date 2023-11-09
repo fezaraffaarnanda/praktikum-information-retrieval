@@ -137,7 +137,7 @@ def main():
 
         # saving to both excel and csv just to showcase the features.
         business_list.save_to_excel("google_maps_data")
-        business_list.save_to_csv("google_maps_data")
+        # business_list.save_to_csv("google_maps_data")
 
         browser.close()
 
