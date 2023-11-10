@@ -82,14 +82,22 @@ def main():
                 # reviewer name
                 reviewer_name_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div['+str(j)+']/div/div/div[1]/div[1]/div[2]/span'
                 reviewer_name = page.locator(reviewer_name_xpath).inner_text()
-                
-                # rating
-                rating_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div['+str(j)+']/div/div/div[2]/svg'
-                rating = page.locator(rating_xpath).get_attribute('aria-label')
 
                 # review time
-                review_time_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div['+str(j)+']/div/div/div[7]/div[1]'
-                review_time = page.locator(review_time_xpath).inner_text()
+                for div_index in [8, 7]:
+                    review_time_xpath = f'//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div[{j}]/div/div/div[{div_index}]/div[1]'
+                    review_time_locator = page.locator(review_time_xpath)
+
+                    # Check if the element is visible on the page
+                    if review_time_locator.is_visible():
+                        review_time = review_time_locator.inner_text()
+                        print(f"Review Time: {review_time}")
+                        break  # Break out of the loop if the element is found
+                    else:
+                        print(f"Review Time element for div[{div_index}] not found or not visible.")
+
+                rating_xpath =page.query_selector("//html[1]/body[1]/div[1]/main[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/section[7]/div[1]/div[1]/div[1]/section[1]/section[1]/div[1]/div[1]/div[5]/div[1]/div["+str(j)+"]/div[1]/div[1]/div[2]/*[name()='svg'][1]")
+                rating = rating_xpath.get_attribute('aria-label')
 
                 review_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div['+str(j)+']/div/div/div[5]/div[1]/div/span/span'
 
