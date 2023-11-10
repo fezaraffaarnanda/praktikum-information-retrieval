@@ -6,15 +6,19 @@ import pandas as pd
 import argparse
 import time
 import sys
+import datetime
 
 
 @dataclass
 class Review:
     """holds maps reviews data"""
-    id_review: str = None
-    name: str = None
-    review_text: str = None
-
+    place: str = "Pantai Losari"
+    id_review: str = None #udah
+    collecting_time:str = None #udah
+    review_time: str = None #udah
+    username: str = None #udah
+    rating: str = None #udah
+    review_text: str = None #udah
 
 @dataclass
 class ReviewList:
@@ -61,32 +65,60 @@ def main():
         print("============ Scraping ===========")
 
         for i in range(1,total):
-            review = Review()
 
-            page.wait_for_timeout(1575)
+            # Membuat objek review
+            review = Review()
+            # time.sleep(1)
+            page.wait_for_timeout(3000)
             
+            # id_review
             review_element = page.query_selector('//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[9]/div['+str(3*i+-2)+']/div/div/div[2]/div[2]/div[1]/button')
             review_id = review_element.get_attribute('data-review-id')
 
+            # collecting time
+            current_datetime = datetime.datetime.now()
+            formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+
+            # review time 
+            review_time_xpath ='//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[9]/div['+str(3*i-2)+']/div/div/div[4]/div[1]/span[2]'
+            review_time = page.locator(review_time_xpath).inner_text()
+
+            # username
             reviewer_name_xpath = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[9]/div['+str(3*i-2)+']/div/div/div[2]/div[2]/div[1]/button/div[1]'
             reviewer_name = page.locator(reviewer_name_xpath).inner_text()
             
+            # rating
+            rating_xpath = '//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[9]/div['+str(3*i-2)+']/div/div/div[4]/div[1]/span[1]'
+            rating = page.locator(rating_xpath).get_attribute('aria-label')
+
             review_xpath = '//*[@id="'+review_id+'"]'
 
+            # time.sleep(2)
             if "… Lainnya" in page.locator(review_xpath).inner_text():
                 button_lainnya_xpath = '//*[@id="'+review_id+'"]/span[2]/button'
                 page.locator(button_lainnya_xpath).click();
             
+            # review text
             review_text = page.locator(review_xpath).inner_text()
+            
+            time.sleep(1)
+            # Assign nilai ke masing-masing atribut review
             review.id_review = review_id
-            review.name = reviewer_name
+            review.collecting_time = formatted_datetime
+            review.review_time = review_time
+            review.username = reviewer_name
+            review.rating = rating
             review.review_text = review_text
-
-            # print(review)
+            
+            # Append review ke review_list
             review_list.review_list.append(review)
 
-            page.mouse.wheel(0, 1500)
-            page.wait_for_timeout(3000)
+            # Scroll ke bawah
+            page.mouse.wheel(0, 4000)
+            # delay 3 detik
+            # time.sleep(3)
+            page.wait_for_timeout(2000)
+
             # Print empat huruf terakhir review id dan total review yang sudah di scrape
             print(f"Review ID: ...{review_id[-4:]} | Currently Scraped: {i}", end='\r')
             sys.stdout.flush()
@@ -101,7 +133,7 @@ if __name__ == "__main__":
     parser.add_argument("-n", "--total", type=int)
     args = parser.parse_args()
 
-    # Total review yang akan di scrape, defaulnya 10
+    # Total review yang akan di scrape, defaultnya 10
     if args.total:
         total = args.total+1
     else:

@@ -7,15 +7,19 @@ import argparse
 import time
 import sys
 import math
+import datetime
 
 
 @dataclass
 class Review:
     """holds maps reviews data"""
-    # id_review: str = None
-    name: str = None
-    review_text: str = None
-
+    place: str = "Pantai Losari"
+    id_review: str = None #udah
+    collecting_time:str = None #udah
+    review_time: str = None #udah
+    username: str = None #udah
+    rating: str = None #udah
+    review_text: str = None #udah
 
 @dataclass
 class ReviewList:
@@ -66,22 +70,44 @@ def main():
 
         for i in range(1,total_halaman+1):
             for j in range(1,11):
-                #delay 2s
-                page.wait_for_timeout(2000)
+
+                page.wait_for_timeout(5000)
 
                 review = Review()
 
-                page.wait_for_timeout(200)
-
+                # collecting time
+                current_datetime = datetime.datetime.now()
+                formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
+                
+                # reviewer name
                 reviewer_name_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div['+str(j)+']/div/div/div[1]/div[1]/div[2]/span'
                 reviewer_name = page.locator(reviewer_name_xpath).inner_text()
                 
+                # rating
+                rating_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div['+str(j)+']/div/div/div[2]/svg'
+                rating = page.locator(rating_xpath).get_attribute('aria-label')
+
+                # review time
+                review_time_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div['+str(j)+']/div/div/div[7]/div[1]'
+                review_time = page.locator(review_time_xpath).inner_text()
+
                 review_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div['+str(j)+']/div/div/div[5]/div[1]/div/span/span'
+
+                if "Selengkapnya" in page.locator(review_xpath).inner_text():
+                    button_selengkapnya_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div['+str(j)+']/div/div/div[5]/div[2]/button/span'
+                    page.locator(button_selengkapnya_xpath).click();
+            
                 review_text = page.locator(review_xpath).inner_text()
                 
                 # memasukkan variabel ke class Review
-                review.name = reviewer_name
+                review.id_review = j
+                review.collecting_time = formatted_datetime
+                review.review_time = review_time
+                review.rating = rating
+                review.username = reviewer_name
                 review.review_text = review_text
+
+                # time.sleep(3)
 
                 review_list.review_list.append(review)
                 #delay 2s
@@ -97,12 +123,14 @@ def main():
                     next_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div[11]/div[1]/div/div[1]/div[2]/div/a'
                     page.locator(next_xpath).click();   
                     #delay 5s  
+                    time.sleep(3)
                     page.wait_for_timeout(5000)
 
                 #delay 2s
-                page.wait_for_timeout(2000)
+                # time.sleep(2)
+                page.wait_for_timeout(5000)
                 #scroll
-                page.mouse.wheel(0, 300)
+                page.mouse.wheel(0, 500)
             
         page.wait_for_timeout(5000)
         print("\n======== Menyimpan ke Excel ========")
