@@ -51,7 +51,7 @@ def main():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
         page = browser.new_page()
-        page.goto("https://maps.app.goo.gl/SyXMj8rCRsco4JM38",timeout=60000)
+        page.goto("https://maps.app.goo.gl/AYpKaMWT53zHgQtU7",timeout=60000)
 
         page.wait_for_timeout(10000)
         page.locator('button:has-text("Ulasan lainnya")').click();
@@ -85,14 +85,14 @@ def main():
             # print(review)
             review_list.review_list.append(review)
 
-            page.mouse.wheel(0, 7000)
+            page.mouse.wheel(0, 1500)
             page.wait_for_timeout(3000)
             # Print empat huruf terakhir review id dan total review yang sudah di scrape
             print(f"Review ID: ...{review_id[-4:]} | Currently Scraped: {i}", end='\r')
             sys.stdout.flush()
             
         print("\n======== Menyimpan ke Excel ========")
-        review_list.save_to_excel("jakarta_aquarium_review")
+        review_list.save_to_excel("pantai_losari_review")
 
         browser.close()
 
