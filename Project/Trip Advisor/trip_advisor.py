@@ -8,18 +8,20 @@ import time
 import sys
 import math
 import datetime
+import random
+import string
 
 
 @dataclass
 class Review:
     """holds maps reviews data"""
     place: str = "Pantai Losari"
-    id_review: str = None #udah
-    collecting_time:str = None #udah
-    review_time: str = None #udah
-    username: str = None #udah
-    rating: str = None #udah
-    review_text: str = None #udah
+    id_review: str = None 
+    collecting_time:str = None 
+    review_time: str = None 
+    username: str = None 
+    rating: str = None
+    review_text: str = None
 
 @dataclass
 class ReviewList:
@@ -52,6 +54,25 @@ class ReviewList:
         """
         self.dataframe().to_csv(f"{filename}.csv", index=False)
 
+
+# Fungsi untuk membuat review id secara random
+# karena tidak ada id review pada website tripadvisor
+def generate_review_id():
+    pattern = 'nccnccnccnccnccnccnccnccnccnccnccncc'
+    
+    review_id = ''
+    for char in pattern:
+        if char == 'n':
+            review_id += str(random.randint(0, 9))
+        elif char == 'c':
+            review_id += random.choice(string.ascii_letters)
+    
+    return review_id
+
+def save_and_exit(review_list, filename):
+    review_list.save_to_excel(filename)
+    sys.exit("Script exited due to an error.")
+
 def main():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
@@ -64,14 +85,13 @@ def main():
 
         total_halaman = math.ceil(total/ 10)
 
-        # total_scraped = 0
 
         print("============ Scraping ===========")
 
         for i in range(1,total_halaman+1):
             for j in range(1,11):
 
-                page.wait_for_timeout(5000)
+                page.wait_for_timeout(1500)
 
                 review = Review()
 
@@ -84,7 +104,7 @@ def main():
                 try:
                     reviewer_name = page.locator(reviewer_name_xpath).inner_text()
                 except:
-                    print(f"Error: Reviewer name not found at page {i}, review {j}")
+                    print(f"Error: Nama reviewer tidak ditemukan di halaman {i}, review {j}")
                     save_and_exit(review_list, "pantai_losari_review_tripadvisor_error")
 
                 # review time
@@ -92,20 +112,20 @@ def main():
                     review_time_xpath = f'//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div[{j}]/div/div/div[{div_index}]/div[1]'
                     review_time_locator = page.locator(review_time_xpath)
 
-                    # Check if the element is visible on the page
+                    # Cek apakah element review time sudah ada dan visible
                     if review_time_locator.is_visible():
                         review_time = review_time_locator.inner_text()
                         print(f"Review Time: {review_time}")
-                        break  # Break out of the loop if the element is found
+                        break  # Break jika sudah ketemu
                     else:
-                        print(f"Review Time element for div[{div_index}] not found or not visible.")
+                        print(f"Review Time element untuk div[{div_index}] tidak ditemukan atau tidak visible.")
 
-                # rating
+                # rating score
                 rating_xpath = "//html[1]/body[1]/div[1]/main[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/section[7]/div[1]/div[1]/div[1]/section[1]/section[1]/div[1]/div[1]/div[5]/div[1]/div["+str(j)+"]/div[1]/div[1]/div[2]/*[name()='svg'][1]"
                 try:
                     rating = page.query_selector(rating_xpath).get_attribute('aria-label')
                 except:
-                    print(f"Error: Reviewer name not found at page {i}, review {j}")
+                    print(f"Error: Rating skor tidak ditemukan {i}, review {j}")
                     save_and_exit(review_list, "pantai_losari_review_tripadvisor_error")
 
                 review_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div['+str(j)+']/div/div/div[5]'
@@ -117,7 +137,8 @@ def main():
                 review_text = page.locator(review_xpath).inner_text()
                 
                 # memasukkan variabel ke class Review
-                review.id_review = j
+                # review id dibuat random dikarenakan tidak ada id review pada website tripadvisor
+                review.id_review = generate_review_id()
                 review.collecting_time = formatted_datetime
                 review.review_time = review_time
                 review.rating = rating
@@ -125,8 +146,7 @@ def main():
                 review.review_text = review_text
 
                 review_list.review_list.append(review)
-                page.wait_for_timeout(2000)
-                # total_scraped += 1 
+                page.wait_for_timeout(500)
 
                 # Print halaman, nomor, dan empat huruf pertama dari nama reviewer
                 print(f"Halaman : {i}  , No : {j}   | Reviewer Name: {reviewer_name[:4]}")
@@ -135,11 +155,10 @@ def main():
                 if(j%10==0):
                     page.wait_for_timeout(1000)
                     next_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div[11]/div[1]/div/div[1]/div[2]/div/a'
-                    page.locator(next_xpath).click();   
-                    #delay 5s  
-                    page.wait_for_timeout(1000)
+                    page.locator(next_xpath).click();
+                    page.wait_for_timeout(500)
 
-                page.wait_for_timeout(2000)
+                page.wait_for_timeout(500)
                 #scroll
                 page.mouse.wheel(0, 500)
             
@@ -148,10 +167,6 @@ def main():
         review_list.save_to_excel("pantai_losari_review_tripadvisor")
 
         browser.close()
-
-def save_and_exit(review_list, filename):
-    review_list.save_to_excel(filename)
-    sys.exit("Script exited due to an error.")
 
 if __name__ == "__main__":
 
@@ -172,7 +187,7 @@ if __name__ == "__main__":
         try:
             total = int(input("Masukkan jumlah review (harus kelipatan 10): "))
             if total % 10 == 0:
-                break  # Keluar dari loop jika jumlah review kelipatan 10
+                break  # break jika total kelipatan 10
             else:
                 print("Masukkan harus kelipatan 10. Silakan coba lagi.")
         except ValueError:

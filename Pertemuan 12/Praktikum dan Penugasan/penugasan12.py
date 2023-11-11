@@ -71,10 +71,6 @@ def main():
             # time.sleep(1)
             page.wait_for_timeout(1000)
 
-            # Scroll page
-            page.mouse.wheel(0, 850)
-            page.wait_for_timeout(1000)
-            
             # id_review
             review_element = page.query_selector('//*[@id="QA0Szd"]/div/div/div[1]/div[2]/div/div[1]/div/div/div[2]/div[9]/div['+str(3*i+-2)+']/div/div/div[2]/div[2]/div[1]/button')
             review_id = review_element.get_attribute('data-review-id')
@@ -115,6 +111,10 @@ def main():
             
             # Append review ke review_list
             review_list.review_list.append(review)
+
+            # Scroll page
+            page.mouse.wheel(0, 1200)
+            page.wait_for_timeout(1000)
 
             # Print empat huruf terakhir review id dan total review yang sudah di scrape
             print(f"Review ID: ...{review_id[-4:]} | Currently Scraped: {i}", end='\r')
