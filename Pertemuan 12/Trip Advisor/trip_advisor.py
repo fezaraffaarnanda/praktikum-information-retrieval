@@ -80,11 +80,15 @@ def main():
                 formatted_datetime = current_datetime.strftime("%Y-%m-%d %H:%M:%S")
                 
                 # reviewer name
-                reviewer_name_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div['+str(j)+']/div/div/div[1]/div[1]/div[2]/span'
-                reviewer_name = page.locator(reviewer_name_xpath).inner_text()
+                reviewer_name_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div[' + str(j) + ']/div/div/div[1]/div[1]/div[2]/span/a'
+                try:
+                    reviewer_name = page.locator(reviewer_name_xpath).inner_text()
+                except:
+                    print(f"Error: Reviewer name not found at page {i}, review {j}")
+                    save_and_exit(review_list, "pantai_losari_review_tripadvisor_error")
 
                 # review time
-                for div_index in [8, 7]:
+                for div_index in [8, 7, 6, 5, 4, 3, 2, 1]:
                     review_time_xpath = f'//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div[{j}]/div/div/div[{div_index}]/div[1]'
                     review_time_locator = page.locator(review_time_xpath)
 
@@ -96,10 +100,15 @@ def main():
                     else:
                         print(f"Review Time element for div[{div_index}] not found or not visible.")
 
-                rating_xpath =page.query_selector("//html[1]/body[1]/div[1]/main[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/section[7]/div[1]/div[1]/div[1]/section[1]/section[1]/div[1]/div[1]/div[5]/div[1]/div["+str(j)+"]/div[1]/div[1]/div[2]/*[name()='svg'][1]")
-                rating = rating_xpath.get_attribute('aria-label')
+                # rating
+                rating_xpath = "//html[1]/body[1]/div[1]/main[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/section[7]/div[1]/div[1]/div[1]/section[1]/section[1]/div[1]/div[1]/div[5]/div[1]/div["+str(j)+"]/div[1]/div[1]/div[2]/*[name()='svg'][1]"
+                try:
+                    rating = page.query_selector(rating_xpath).get_attribute('aria-label')
+                except:
+                    print(f"Error: Reviewer name not found at page {i}, review {j}")
+                    save_and_exit(review_list, "pantai_losari_review_tripadvisor_error")
 
-                review_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div['+str(j)+']/div/div/div[5]/div[1]/div/span/span'
+                review_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div['+str(j)+']/div/div/div[5]'
 
                 if "Selengkapnya" in page.locator(review_xpath).inner_text():
                     button_selengkapnya_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div['+str(j)+']/div/div/div[5]/div[2]/button/span'
@@ -115,10 +124,7 @@ def main():
                 review.username = reviewer_name
                 review.review_text = review_text
 
-                # time.sleep(3)
-
                 review_list.review_list.append(review)
-                #delay 2s
                 page.wait_for_timeout(2000)
                 # total_scraped += 1 
 
@@ -131,20 +137,21 @@ def main():
                     next_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div[11]/div[1]/div/div[1]/div[2]/div/a'
                     page.locator(next_xpath).click();   
                     #delay 5s  
-                    time.sleep(3)
-                    page.wait_for_timeout(5000)
+                    page.wait_for_timeout(1000)
 
-                #delay 2s
-                # time.sleep(2)
-                page.wait_for_timeout(5000)
+                page.wait_for_timeout(2000)
                 #scroll
                 page.mouse.wheel(0, 500)
             
         page.wait_for_timeout(5000)
         print("\n======== Menyimpan ke Excel ========")
-        review_list.save_to_excel("pantai_losari_review")
+        review_list.save_to_excel("pantai_losari_review_tripadvisor")
 
         browser.close()
+
+def save_and_exit(review_list, filename):
+    review_list.save_to_excel(filename)
+    sys.exit("Script exited due to an error.")
 
 if __name__ == "__main__":
 

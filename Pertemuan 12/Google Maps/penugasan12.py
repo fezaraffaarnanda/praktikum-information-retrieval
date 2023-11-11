@@ -55,7 +55,7 @@ def main():
     with sync_playwright() as p:
         browser = p.chromium.launch(headless=False)
         page = browser.new_page()
-        page.goto("https://maps.app.goo.gl/ZeSv5ePjEffdochD8",timeout=60000)
+        page.goto("https://maps.app.goo.gl/f3QxHCsTf9p5QXt57",timeout=60000)
 
         page.wait_for_timeout(10000)
         page.locator('button:has-text("Ulasan lainnya")').click();
@@ -69,6 +69,10 @@ def main():
             # Membuat objek review
             review = Review()
             # time.sleep(1)
+            page.wait_for_timeout(1000)
+
+            # Scroll page
+            page.mouse.wheel(0, 850)
             page.wait_for_timeout(1000)
             
             # id_review
@@ -101,7 +105,6 @@ def main():
             # review text
             review_text = page.locator(review_xpath).inner_text()
             
-            # time.sleep(1)
             # Assign nilai ke masing-masing atribut review
             review.id_review = review_id
             review.collecting_time = formatted_datetime
@@ -113,18 +116,12 @@ def main():
             # Append review ke review_list
             review_list.review_list.append(review)
 
-            # Scroll ke bawah
-            page.mouse.wheel(0, 2000)
-            # delay 3 detik
-            # time.sleep(3)
-            page.wait_for_timeout(1000)
-
             # Print empat huruf terakhir review id dan total review yang sudah di scrape
             print(f"Review ID: ...{review_id[-4:]} | Currently Scraped: {i}", end='\r')
             sys.stdout.flush()
             
         print("\n======== Menyimpan ke Excel ========")
-        review_list.save_to_excel("pantai_melasti_review")
+        review_list.save_to_excel("pantai_melasti_review_gmaps")
 
         browser.close()
 
