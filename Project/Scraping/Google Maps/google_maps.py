@@ -1,4 +1,7 @@
-"""Script ini digunakan untuk mengekstrak data review dari suatu tempat di Google Maps"""
+"""
+Script ini digunakan untuk mengekstrak data review dari suatu tempat di Google Maps
+Copyright by Tim Scraping - 3SD2
+"""
 
 from playwright.sync_api import sync_playwright
 from dataclasses import dataclass, asdict, field
@@ -61,7 +64,7 @@ def main():
         page.locator('button:has-text("Ulasan lainnya")').click();
         
         review_list = ReviewList()
-
+        print("Copyright by Tim Scraping - 3SD2")
         print("============ Scraping ===========")
 
         for i in range(1,total):

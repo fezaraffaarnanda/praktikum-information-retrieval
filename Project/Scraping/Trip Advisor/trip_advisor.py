@@ -1,4 +1,7 @@
-"""Script ini digunakan untuk mengekstrak data review dari suatu tempat di Google Maps"""
+"""
+Script ini digunakan untuk mengekstrak data review dari suatu tempat di Trip Advisor
+Copyright by Tim Scraping - 3SD2
+"""
 
 from playwright.sync_api import sync_playwright
 from dataclasses import dataclass, asdict, field
@@ -83,9 +86,9 @@ def main():
 
         review_list = ReviewList()
 
-        total_halaman = math.ceil(total/ 10)
+        total_halaman = math.ceil(total/10)
 
-
+        print("Copyright by Tim Scraping - 3SD2")
         print("============ Scraping ===========")
 
         for i in range(1,total_halaman+1):
@@ -118,14 +121,14 @@ def main():
                         print(f"Review Time: {review_time}")
                         break  # Break jika sudah ketemu
                     else:
-                        print(f"Review Time element untuk div[{div_index}] tidak ditemukan atau tidak visible.")
+                        print(f"Review Time untuk div[{div_index}] tidak ditemukan atau tidak visible.")
 
                 # rating score
                 rating_xpath = "//html[1]/body[1]/div[1]/main[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/section[7]/div[1]/div[1]/div[1]/section[1]/section[1]/div[1]/div[1]/div[5]/div[1]/div["+str(j)+"]/div[1]/div[1]/div[2]/*[name()='svg'][1]"
                 try:
                     rating = page.query_selector(rating_xpath).get_attribute('aria-label')
                 except:
-                    print(f"Error: Rating skor tidak ditemukan {i}, review {j}")
+                    print(f"Error: Rating skor tidak ditemukan di halaman {i}, review {j}")
                     save_and_exit(review_list, "pantai_losari_review_tripadvisor_error")
 
                 review_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div['+str(j)+']/div/div/div[5]'
@@ -156,11 +159,11 @@ def main():
                     page.wait_for_timeout(1000)
                     next_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div[11]/div[1]/div/div[1]/div[2]/div/a'
                     page.locator(next_xpath).click();
-                    page.wait_for_timeout(500)
+                    page.wait_for_timeout(1200)
 
-                page.wait_for_timeout(500)
+                page.wait_for_timeout(900)
                 #scroll
-                page.mouse.wheel(0, 500)
+                page.mouse.wheel(0, 350)
             
         page.wait_for_timeout(5000)
         print("\n======== Menyimpan ke Excel ========")
