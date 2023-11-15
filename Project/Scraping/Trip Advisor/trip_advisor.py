@@ -121,14 +121,14 @@ def main():
                         print(f"Review Time: {review_time}")
                         break  # Break jika sudah ketemu
                     else:
-                        print(f"Review Time untuk div[{div_index}] tidak ditemukan atau tidak visible.")
+                        print(f"Review Time untuk div[{div_index}] tidak ditemukan atau tidak terlihat [non-visible].")
 
                 # rating score
                 rating_xpath = "//html[1]/body[1]/div[1]/main[1]/div[1]/div[2]/div[2]/div[2]/div[1]/div[1]/section[7]/div[1]/div[1]/div[1]/section[1]/section[1]/div[1]/div[1]/div[5]/div[1]/div["+str(j)+"]/div[1]/div[1]/div[2]/*[name()='svg'][1]"
                 try:
                     rating = page.query_selector(rating_xpath).get_attribute('aria-label')
                 except:
-                    print(f"Error: Rating skor tidak ditemukan di halaman {i}, review {j}")
+                    print(f"Error: Rating skor xpath tidak ditemukan di halaman {i}, review {j}")
                     save_and_exit(review_list, "pantai_losari_review_tripadvisor_error")
 
                 review_xpath = '//*[@id="tab-data-qa-reviews-0"]/div/div[5]/div/div['+str(j)+']/div/div/div[5]'
