@@ -82,10 +82,13 @@ def main():
         page = browser.new_page()
         page.goto("https://www.tripadvisor.co.id/Attraction_Review-g297720-d777660-Reviews-Losari_Beach-Makassar_South_Sulawesi_Sulawesi.html",timeout=60000)
 
-        page.mouse.wheel(0, 1570)
+        # Scroll 
+        page.mouse.wheel(0, 1575)
 
+        # Object ReviewList
         review_list = ReviewList()
 
+        # Menghitung total halaman dikarenakan setiap halaman hanya menampilkan 10 review
         total_halaman = math.ceil(total/10)
 
         print("Copyright by Tim Scraping - 3SD2")
@@ -116,6 +119,7 @@ def main():
                     review_time_locator = page.locator(review_time_xpath)
 
                     # Cek apakah element review time sudah ada dan visible
+                    # Pada web trip advisor, element xpath review time tidak selalu konsisten, ada yang div[8], div[7], dst.
                     if review_time_locator.is_visible():
                         review_time = review_time_locator.inner_text()
                         print(f"Review Time: {review_time}")
